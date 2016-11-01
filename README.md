@@ -1,2 +1,2 @@
 # collapsar
-a light-weight、reliable httpserver
+a light-weight,reliable httpserver
