@@ -2,7 +2,6 @@ package edu.nju.collapsar.invoker;
 
 import edu.nju.collapsar.Request;
 import edu.nju.collapsar.Response;
-import edu.nju.collapsar.ResponseImpl;
 import edu.nju.collapsar.quark.Quark;
 
 import java.net.MalformedURLException;
@@ -53,24 +52,4 @@ public class InvokerImpl  implements Invoker{
                 break;
         }
     }
-
-    public static void main(String args[]){
-        Invoker invoker = new InvokerImpl();
-        Request testRequest = new Request() {
-            @Override
-            public String getType() {
-                return "Get";
-            }
-
-            @Override
-            public String getUrl() {
-                return "";
-            }
-        };
-        Response testResponse = new ResponseImpl();
-        invoker.invoke(testRequest,testResponse);
-        System.out.println(testResponse);
-
-    }
-
 }
