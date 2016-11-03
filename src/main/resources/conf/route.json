@@ -1,0 +1,29 @@
+{
+  "rules":{
+    "baseRoute":"/app"//表示该路由的基本前缀，下面的路由可用./来表示
+  },
+  "staticRoutes": [
+    {
+      "staticRoute":[
+        "./ahhh<id:d{4}>/<name:w+>.html"
+      ],
+      "filepath":"./<id>/<name>.html/"//静态文件位置，./表示在DocumentRoot目录下，也可用全路径表示
+    }
+  ],
+  "dynamicActions":[
+    {
+      "actionRoute":[
+        "./action1"
+      ],
+      "name":"Action1",
+      "jarpath":"./jar/action1.jar"//jar包位置,./表示在DocumentRoot目录下，也可用全路径表示
+    },
+    {
+      "actionRoute":[
+        "./action2"
+      ],
+      "name":"Action2",
+      "jarpath":"./jar/action2.jar"
+    }
+  ]
+}
