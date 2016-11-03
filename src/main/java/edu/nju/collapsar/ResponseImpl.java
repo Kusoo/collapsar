@@ -5,7 +5,16 @@ package edu.nju.collapsar;
  */
 public class ResponseImpl implements Response{
 
-    public void write() {
+    private StringBuffer contentBuffer = new StringBuffer("");
 
+    @Override
+    public void write(String content) {
+        contentBuffer.append(content);
     }
+
+    @Override
+    public String toString(){
+        return contentBuffer.toString();
+    }
+
 }
