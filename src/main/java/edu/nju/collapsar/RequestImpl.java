@@ -8,13 +8,13 @@ import java.util.Map;
  */
 public class RequestImpl implements Request{
 
-
-
     private String type = null;
     private String url = null;
     private String httpVersion = null;
     private Map<String, String> requestHeaders;
-    private Map<String, String> paramters;
+
+    //I will fill the parameters with the url parameters and the post entities
+    private Map<String, String> parameters;
 
     public void setType(String s){
         this.type = s;
@@ -42,13 +42,14 @@ public class RequestImpl implements Request{
         }
         requestHeaders.put(key, value);
     }
-    public void setHeaders(Map<String, String>map){
+    public void setHeaders(Map<String, String> map){
         if(null == requestHeaders){
             requestHeaders = new HashMap<String,String>();
         }
         requestHeaders.putAll(map);
     }
     public String getHeader(String key){
+        if (requestHeaders == null) return null;
         return requestHeaders.get(key);
     }
     public Map<String, String> getHeaders(){
@@ -56,22 +57,23 @@ public class RequestImpl implements Request{
     }
 
     public void setParamters(String key, String value){
-        if(null == paramters){
-            paramters = new HashMap<String,String>();
+        if(null == parameters){
+            parameters = new HashMap<String,String>();
         }
-        paramters.put(key, value);
+        parameters.put(key, value);
     }
-    public void setParamters(Map<String, String>map){
-        if(null == paramters){
-            paramters = new HashMap<String,String>();
+    public void setParameters(Map<String, String>map){
+        if(null == parameters){
+            parameters = new HashMap<String,String>();
         }
-        paramters.putAll(map);
+        parameters.putAll(map);
     }
     public String getParameter(String key){
-        return paramters.get(key);
+        if (parameters == null) return null;
+        return parameters.get(key);
     }
     public Map<String, String> getParameters(){
-        return paramters;
+        return parameters;
     }
 
 }
