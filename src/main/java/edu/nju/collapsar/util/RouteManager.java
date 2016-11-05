@@ -14,13 +14,13 @@ import java.util.List;
 public class RouteManager {
     private static boolean ruleState = true;
     private static String baseRoute = null;
+    private static String jarPath = null;
     private static List<RouteInfo> staticRouteMap = null;
     private static List<RouteInfo> dynamicRouteMap = null;
     private static RouteManager managerInstance = null;
     private static String documentRoot = null;
     private static String routeConfigPath = null;
     private RouteManager(String documentRoot, String routeConfigPath) {
-        RouteManager.documentRoot = documentRoot;
         if ((null != documentRoot) && (!"".equals(documentRoot))) {
             if (documentRoot.endsWith("/")) {
                 documentRoot = documentRoot.substring(0, documentRoot.length() - 1);
@@ -35,6 +35,15 @@ public class RouteManager {
             ruleState = true;
         } else if ((null != stateStr) && ("off".equals(stateStr))) {
             ruleState = false;
+        }
+        try {
+            jarPath = rules.getString("jarpath");
+        } catch (Exception e) {
+            e.printStackTrace();
+            jarPath = "./jar/File.jar";
+        }
+        if (jarPath.startsWith("./")) {
+            jarPath.replaceFirst("./", documentRoot);
         }
         try {
             baseRoute = rules.getString("baseRoute");
@@ -53,7 +62,7 @@ public class RouteManager {
         JSONArray staticRoutes = root.getJSONArray("staticRouteRules");
         Iterator<JSONObject> it = staticRoutes.iterator();
         RouteInfo routeInfo = null;
-        String path = null;
+        String filePath = null;
         List<String> routes = null;
         staticRouteMap = new ArrayList<RouteInfo>();
         while(it.hasNext()) {
@@ -69,17 +78,16 @@ public class RouteManager {
                 routes.add(route);
             }
 
-            path = temp.getString("filepath");
-            if (path.startsWith("./")) {
-                path = path.replaceFirst("./", documentRoot + "/");
+            filePath = temp.getString("filepath");
+            if (filePath.startsWith("/")) {
+                filePath = filePath.substring(1);
             }
-            routeInfo = new StaticRouteInfo(routes, path);
+            routeInfo = new StaticRouteInfo(routes, filePath, jarPath);
             staticRouteMap.add(routeInfo);
         }
         JSONArray dynamicActions = root.getJSONArray("dynamicActions");
         routeInfo = null;
         String classname = null;
-        path = null;
         routes = null;
         dynamicRouteMap = new ArrayList<RouteInfo>();
         it = dynamicActions.iterator();
@@ -97,28 +105,25 @@ public class RouteManager {
             }
 
             classname = temp.getString("className");
-
-            path = temp.getString("jarpath");
-            if (path.startsWith("./")) {
-                path = path.replaceFirst("./", documentRoot + "/");
-            }
-            routeInfo = new DynamicRouteInfo(routes, classname,path);
+            routeInfo = new DynamicRouteInfo(routes, classname, jarPath);
             staticRouteMap.add(routeInfo);
         }
 
     }
 
     private RouteInfo defaultRouting(String url) {
-        String path = url;
-        if((null != baseRoute) && (path.startsWith(baseRoute))) {
-            if ((path.length() > baseRoute.length()) && ('/' != path.charAt(baseRoute.length()))) {
-                path = path.substring(baseRoute.length());
+        String filePath = url;
+        if((null != baseRoute) && (filePath.startsWith(baseRoute))) {
+            if ((filePath.length() > baseRoute.length()) && ('/' == filePath.charAt(baseRoute.length()))) {
+                filePath = filePath.substring(baseRoute.length());
             }
         }
-        path = documentRoot + path;
         List<String> routes = new ArrayList<String>();
-        routes.add(path);
-        RouteInfo routeResult = new StaticRouteInfo(routes, path);
+        routes.add(filePath);
+        if (filePath.startsWith("/")) {
+            filePath = filePath.substring(1);
+        }
+        RouteInfo routeResult = new StaticRouteInfo(routes, filePath, jarPath);
         return routeResult;
     }
 

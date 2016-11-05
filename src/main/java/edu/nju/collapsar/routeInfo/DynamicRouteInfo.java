@@ -7,11 +7,11 @@ import java.util.List;
  */
 public class DynamicRouteInfo extends RouteInfo{
     private String className = null;
-    public DynamicRouteInfo(List<String> routes, String path) {
-        super(routes, path);
+    public DynamicRouteInfo(List<String> routes, String jarPath) {
+        super(routes, jarPath);
     }
-    public DynamicRouteInfo(List<String> routes, String className, String path) {
-        super(routes, path);
+    public DynamicRouteInfo(List<String> routes, String className, String jarPath) {
+        super(routes, jarPath);
         this.className = className;
     }
 

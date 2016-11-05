@@ -8,7 +8,7 @@
       {
         "serviceName":"www.chishi.com",//域名
         "documentRoot":"D://test/asdas",//全路径表示该服务器文件所在位置
-        "routeConfigPath":"D://IDEA_Project/collapsar_test/src/main/resources/conf/route.json"//全路径表示路径规则所在配置文件位置
+        "routeConfigPath":"D://IDEA_Project/import/collapsar/src/main/resources/conf/route.json"//全路径表示路径规则所在配置文件位置
       }
   }
 }

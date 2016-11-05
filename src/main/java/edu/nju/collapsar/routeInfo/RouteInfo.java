@@ -7,18 +7,18 @@ import java.util.List;
  */
 public abstract class RouteInfo {
     protected List<String> routes = null;
-    protected String path = null;
-    public RouteInfo(List<String> routes, String path) {
-        this.path = path;
+    protected String jarPath = null;
+    public RouteInfo(List<String> routes, String jarPath) {
+        this.jarPath = jarPath;
         this.routes = routes;
     }
 
-    public String getPath() {
-        return path;
+    public String getJarPath() {
+        return jarPath;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setJarPath(String jarPath) {
+        this.jarPath = jarPath;
     }
 
     public List<String> getRoutes() {

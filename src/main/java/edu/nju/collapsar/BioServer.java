@@ -4,6 +4,7 @@ import edu.nju.collapsar.invoker.Invoker;
 import edu.nju.collapsar.invoker.StaticResourceReader;
 import edu.nju.collapsar.routeInfo.DynamicRouteInfo;
 import edu.nju.collapsar.routeInfo.RouteInfo;
+import edu.nju.collapsar.routeInfo.StaticRouteInfo;
 import edu.nju.collapsar.util.ResponseHelper;
 import edu.nju.collapsar.util.RouteManager;
 import org.omg.CORBA.portable.ResponseHandler;
@@ -75,7 +76,7 @@ public class BioServer {
                 invoker.invoke(((DynamicRouteInfo) routeInfo).getClassName(),request,response);
             } else {
                 StaticResourceReader reader = new StaticResourceReader();
-                response.write(reader.read(routeInfo.getPath()).toString());
+                response.write(reader.read(((StaticRouteInfo) routeInfo).getFilePath()).toString());
             }
 
             try {

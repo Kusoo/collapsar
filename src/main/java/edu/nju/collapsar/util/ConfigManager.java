@@ -25,7 +25,11 @@ public class ConfigManager {
         serverPath = server.getString("serverPath");
         JSONObject service = server.getJSONObject("service");
         serviceName = service.getString("serviceName");
-        documentRoot = service.getString("documentRoot");
+        try {
+            documentRoot = service.getString("documentRoot");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         routeConfigPath = service.getString("routeConfigPath");
 
         //初始化路由文件与routeManager
