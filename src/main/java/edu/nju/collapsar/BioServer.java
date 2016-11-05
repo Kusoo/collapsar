@@ -86,6 +86,11 @@ public class BioServer {
             } else {
                 StaticResourceReader reader = new StaticResourceReader();
                 reader.read(routeInfo.getJarPath(),((StaticRouteInfo) routeInfo).getFilePath(),outputStream);
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
 
