@@ -76,7 +76,7 @@ public class BioServer {
                 invoker.invoke(((DynamicRouteInfo) routeInfo).getClassName(),request,response);
             } else {
                 StaticResourceReader reader = new StaticResourceReader();
-                response.write(reader.read(((StaticRouteInfo) routeInfo).getFilePath()).toString());
+                response.write(new String(reader.read(((StaticRouteInfo) routeInfo).getFilePath())));
             }
 
             try {

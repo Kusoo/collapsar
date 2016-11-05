@@ -119,7 +119,7 @@ public class ResponseImpl implements Response{
             builder.append(entry.getKey()).append(": ").append(entry.getValue()).append(BlankLine);
         }
         builder.append(BlankLine);
-        builder.append(contentBuffer);
+        builder.append(contentBuffer.toString());
         return builder.toString();
     }
 

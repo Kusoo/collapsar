@@ -10,7 +10,7 @@ import java.net.URLClassLoader;
  */
 public class StaticResourceReader {
 
-    private String jarPath = "F:/Workspace/Github/collapsar/classes/artifacts/quarkImpl/CollapsarUser.jar";
+    private String jarPath = "D:/IDEA_Project/webapp/CollapsarUser.jar";
     private String rootPath = "resources/";
     private final int Max_Buffer_Size = 1024 * 10;// Max size of a file
     private final int buffer_size = 100;

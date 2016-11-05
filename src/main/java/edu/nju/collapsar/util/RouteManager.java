@@ -4,6 +4,7 @@ package edu.nju.collapsar.util; /**
 import edu.nju.collapsar.routeInfo.DynamicRouteInfo;
 import edu.nju.collapsar.routeInfo.RouteInfo;
 import edu.nju.collapsar.routeInfo.StaticRouteInfo;
+import jdk.nashorn.internal.runtime.regexp.joni.Config;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -75,6 +76,9 @@ public class RouteManager {
                 if (route.startsWith("./")) {
                     route = route.replaceFirst("./", baseRoute + "/");
                 }
+                if (!route.startsWith("/")) {
+                    route ="/" + route;
+                }
                 routes.add(route);
             }
 
@@ -100,6 +104,9 @@ public class RouteManager {
                 route = jsonRoutes.getString(i);
                 if (route.startsWith("./")) {
                     route = route.replaceFirst("./", baseRoute + "/");
+                }
+                if (!route.startsWith("/")) {
+                    route = "/" + route;
                 }
                 routes.add(route);
             }

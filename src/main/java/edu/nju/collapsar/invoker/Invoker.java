@@ -13,7 +13,7 @@ import java.net.URLClassLoader;
  */
 public class Invoker {
 
-    private String jarPath = "F:/Workspace/Github/collapsar/classes/artifacts/quarkImpl/CollapsarUser.jar";
+    private String jarPath = "D:/IDEA_Project/webapp/CollapsarUser.jar";
     private String invokingClass = "nju.edu.collapsarUser.CollapsarUser";
     private Quark quarkImpl = null;
 
@@ -37,16 +37,16 @@ public class Invoker {
 
         //get request type
         switch (request.getType()){
-            case "Get":
+            case "GET":
                 quarkImpl.doGet(request,response);
                 break;
-            case "Post":
+            case "POST":
                 quarkImpl.doPost(request,response);
                 break;
-            case "Put":
+            case "PUT":
                 quarkImpl.doPut(request,response);
                 break;
-            case "Delete":
+            case "DELETE":
                 quarkImpl.doDelete(request,response);
                break;
             default:
