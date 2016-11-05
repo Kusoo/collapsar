@@ -1,28 +1,29 @@
 {
   "rules":{
-    "baseRoute":"/app"//表示该路由的基本前缀，下面的路由可用./来表示
+    "baseRoute":"/app",//表示该路由的基本前缀，下面的路由可用./来表示
+    "ruleState":"on"//表示是否要使用下述路由规则，on表示使用，off表示不使用，使用默认路径进行寻找
   },
-  "staticRoutes": [
+  "staticRouteRules": [
     {
-      "staticRoute":[
-        "./ahhh<id:d{4}>/<name:w+>.html"
+      "staticRoutes":[
+        "./asfas/ddddd.html"
       ],
-      "filepath":"./<id>/<name>.html/"//静态文件位置，./表示在DocumentRoot目录下，也可用全路径表示
+      "filepath":"./html/ddddd.html"//静态文件位置，./表示在DocumentRoot目录下，也可用全路径表示
     }
   ],
   "dynamicActions":[
     {
-      "actionRoute":[
+      "dynamicRoutes":[
         "./action1"
       ],
-      "name":"Action1",
+      "className":"Action1",
       "jarpath":"./jar/action1.jar"//jar包位置,./表示在DocumentRoot目录下，也可用全路径表示
     },
     {
-      "actionRoute":[
+      "dynamicRoutes":[
         "./action2"
       ],
-      "name":"Action2",
+      "className":"Action2",
       "jarpath":"./jar/action2.jar"
     }
   ]
