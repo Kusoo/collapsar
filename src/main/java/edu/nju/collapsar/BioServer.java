@@ -73,21 +73,22 @@ public class BioServer {
             RouteInfo routeInfo = RouteManager.getRouteManager().getRouting(request.getUrl());
             if(routeInfo instanceof DynamicRouteInfo){
                 Invoker invoker = new Invoker();
-                invoker.invoke(((DynamicRouteInfo) routeInfo).getClassName(),request,response);
+                invoker.invoke(routeInfo.getJarPath(),((DynamicRouteInfo) routeInfo).getClassName(),request,response);
+                try {
+                    ResponseHelper.quickSet(response);
+                    outputStream.write(response.generateResponseMessage().getBytes());
+                    outputStream.flush();
+                    outputStream.close();
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else {
                 StaticResourceReader reader = new StaticResourceReader();
-                response.write(new String(reader.read(((StaticRouteInfo) routeInfo).getFilePath())));
+                reader.read(routeInfo.getJarPath(),((StaticRouteInfo) routeInfo).getFilePath(),outputStream);
             }
 
-            try {
-                ResponseHelper.quickSet(response);
-                outputStream.write(response.generateResponseMessage().getBytes());
-                outputStream.flush();
-                outputStream.close();
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
         }
     }
 }

@@ -13,13 +13,10 @@ import java.net.URLClassLoader;
  */
 public class Invoker {
 
-    private String jarPath = "D:/IDEA_Project/webapp/CollapsarUser.jar";
-    private String invokingClass = "nju.edu.collapsarUser.CollapsarUser";
     private Quark quarkImpl = null;
 
-    public void invoke(String className, Request request, Response response) {
+    public void invoke(String jarPath , String className, Request request, Response response) {
         //Load class
-        invokingClass = className;
         try {
             URLClassLoader classLoader = new URLClassLoader(new URL[]{new URL("file:" + jarPath)});
             Class<?> implClass = classLoader.loadClass(className);

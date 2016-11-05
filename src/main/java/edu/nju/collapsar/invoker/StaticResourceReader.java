@@ -10,27 +10,29 @@ import java.net.URLClassLoader;
  */
 public class StaticResourceReader {
 
-    private String jarPath = "D:/IDEA_Project/webapp/CollapsarUser.jar";
-    private String rootPath = "resources/";
-    private final int Max_Buffer_Size = 1024 * 10;// Max size of a file
-    private final int buffer_size = 100;
+    private final int BUFFER_SIZE = 1024;//The buffer size for reading
 
-    public byte[] read(String path) {
+    public void read(String jarPath ,String path , OutputStream outputStream) {
+
         //get root path for the file
         InputStream is = null;
         try {
             URLClassLoader classLoader = new URLClassLoader(new URL[]{new URL("file:" + jarPath)});
-            is =  classLoader.getResourceAsStream(rootPath + path);
+            is =  classLoader.getResourceAsStream(path);
         }catch (MalformedURLException e) {
             e.printStackTrace();
         }
 
-        byte[] resultBytes = new byte[Max_Buffer_Size];
+        byte[] readBytes = new byte[BUFFER_SIZE];
         try {
-            is.read(resultBytes, 0, resultBytes.length);
+            int endMark = is.read(readBytes, 0, BUFFER_SIZE);
+            while(endMark != -1){
+                outputStream.write(readBytes,0,BUFFER_SIZE);
+                endMark = is.read(readBytes,0,BUFFER_SIZE);
+            }
+
         }catch (Exception e){}
 
-        return resultBytes;
     }
 
 
