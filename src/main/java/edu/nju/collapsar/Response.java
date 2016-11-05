@@ -5,4 +5,10 @@ package edu.nju.collapsar;
  */
 public interface Response {
     void write(String content);
+
+    void setHeader(String key,String value);
+
+    void setHttpVersion(String httpVersion);
+
+    void setStatusCode(String code);
 }
