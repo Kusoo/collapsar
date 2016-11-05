@@ -1,0 +1,15 @@
+{
+  "server": {
+    //只做单服务器
+    "port": 1024,
+    "ip":"192.168.1.100",
+    "basePath":"D://test/",
+    "service":
+      {
+        "serviceName":"www.chishi.com",//域名
+        //"serviceAddress":"192.168.1.100:1024",
+        "documentRoot":"D://test/asdas",//全路径表示文档所在位置
+        "routeConfig":"D://test/"//全路径表示路径规则所在配置文件位置
+      }
+  }
+}
