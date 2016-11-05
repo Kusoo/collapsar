@@ -11,4 +11,6 @@ public interface Response {
     void setHttpVersion(String httpVersion);
 
     void setStatusCode(String code);
+
+    public String generateResponseMessage();
 }

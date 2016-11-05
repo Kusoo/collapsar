@@ -1,5 +1,13 @@
 package edu.nju.collapsar;
 
+import edu.nju.collapsar.invoker.Invoker;
+import edu.nju.collapsar.invoker.StaticResourceReader;
+import edu.nju.collapsar.routeInfo.DynamicRouteInfo;
+import edu.nju.collapsar.routeInfo.RouteInfo;
+import edu.nju.collapsar.util.ResponseHelper;
+import edu.nju.collapsar.util.RouteManager;
+import org.omg.CORBA.portable.ResponseHandler;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,9 +60,33 @@ public class BioServer {
             for (int i = 0; i < size; i++) {
                 requestBuilder.append((char) buffer[i]);
             }
-            String request = requestBuilder.toString();
+            String requestStr = requestBuilder.toString();
 
-            Response response = null;
+            Request request = RequestParser.parse(requestStr);
+            Response response = new ResponseImpl();
+
+            handle(request,response);
+        }
+
+        private void handle(Request request,Response response){
+            RouteInfo routeInfo = RouteManager.getRouteManager().getRouting(request.getUrl());
+            if(routeInfo instanceof DynamicRouteInfo){
+                Invoker invoker = new Invoker();
+                invoker.invoke(((DynamicRouteInfo) routeInfo).getClassName(),request,response);
+            } else {
+                StaticResourceReader reader = new StaticResourceReader();
+                response.write(reader.read(routeInfo.getPath()).toString());
+            }
+
+            try {
+                ResponseHelper.quickSet(response);
+                outputStream.write(response.generateResponseMessage().getBytes());
+                outputStream.flush();
+                outputStream.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

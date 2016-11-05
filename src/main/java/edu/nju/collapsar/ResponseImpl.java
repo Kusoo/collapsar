@@ -21,8 +21,8 @@ public class ResponseImpl implements Response{
     private final String BlankLine = "\r\n";
 
     public ResponseImpl(){
-        header = new HashMap<String,String>();
-        statusMap = new HashMap<String,String>();
+        header = new HashMap<>();
+        statusMap = new HashMap<>();
         statusMap.put("100","Continue");
         statusMap.put("101","Switching Protocols");
 
@@ -112,7 +112,7 @@ public class ResponseImpl implements Response{
         header.put(key,value);
     }
 
-    private String generateResponseMessage(){
+    public String generateResponseMessage(){
         StringBuilder builder = new StringBuilder();
         builder.append(httpVersion).append(" ").append(statusCode).append(" ").append(status).append(BlankLine);
         for(Map.Entry entry:header.entrySet()){
