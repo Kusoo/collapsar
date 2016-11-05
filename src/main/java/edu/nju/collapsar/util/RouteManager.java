@@ -64,14 +64,14 @@ public class RouteManager {
             for (int i = 0; i < jsonRoutes.size(); i++) {
                 route = jsonRoutes.getString(i);
                 if (route.startsWith("./")) {
-                    route = route.replace("./", baseRoute + "/");
+                    route = route.replaceFirst("./", baseRoute + "/");
                 }
                 routes.add(route);
             }
 
             path = temp.getString("filepath");
             if (path.startsWith("./")) {
-                path = path.replace("./", documentRoot + "/");
+                path = path.replaceFirst("./", documentRoot + "/");
             }
             routeInfo = new StaticRouteInfo(routes, path);
             staticRouteMap.add(routeInfo);
@@ -91,7 +91,7 @@ public class RouteManager {
             for (int i = 0; i < jsonRoutes.size(); i++) {
                 route = jsonRoutes.getString(i);
                 if (route.startsWith("./")) {
-                    route = route.replace("./", baseRoute + "/");
+                    route = route.replaceFirst("./", baseRoute + "/");
                 }
                 routes.add(route);
             }
@@ -100,7 +100,7 @@ public class RouteManager {
 
             path = temp.getString("jarpath");
             if (path.startsWith("./")) {
-                path = path.replace("./", documentRoot + "/");
+                path = path.replaceFirst("./", documentRoot + "/");
             }
             routeInfo = new DynamicRouteInfo(routes, classname,path);
             staticRouteMap.add(routeInfo);
@@ -158,6 +158,11 @@ public class RouteManager {
     //null:表示路由未找到
     //DynamicRouteInfo类型:表示是动态路由，jar包地址，
     public RouteInfo getRouting(String url) {
+        //去掉url中的参数?部分
+        int index = url.indexOf('?');
+        if (index >= 0) {
+            url = url.substring(0, index);
+        }
         if (ruleState) {
             return routingUsingRules(url);
         } else {
@@ -176,4 +181,5 @@ public class RouteManager {
         }
         return managerInstance;
     }
+
 }
