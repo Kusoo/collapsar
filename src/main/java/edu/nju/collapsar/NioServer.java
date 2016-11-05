@@ -12,20 +12,13 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class CollapsarServer {
-
-    private final static int BUFFER_SIZE = 8912;
+public class NioServer {
     private final static int PORT = 8080;
 
     private ServerSocketChannel serverChannel;
     private Selector selector;
 
     private ExecutorService executor;
-
-    public static void main(String[] args) throws Exception {
-        CollapsarServer server = new CollapsarServer();
-        server.serve();
-    }
 
     public void serve() throws IOException {
         int cpuNum = Runtime.getRuntime().availableProcessors();
@@ -60,6 +53,32 @@ public class CollapsarServer {
                     executor.execute(worker);
                 }
             }
+        }
+    }
+
+    private class Worker implements Runnable{
+        private final ByteBuffer buffer = ByteBuffer.allocate(2048);
+        private SocketChannel socketChannel;
+
+        public Worker(SocketChannel socketChannel) {
+            this.socketChannel = socketChannel;
+        }
+
+        public void run() {
+            buffer.clear();
+            try {
+                socketChannel.read(buffer);
+                String requestStr = new String(buffer.array());
+                //parse the request string
+                Request request = null;
+
+                //response to not file-request
+                Response response = null;
+                socketChannel.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
