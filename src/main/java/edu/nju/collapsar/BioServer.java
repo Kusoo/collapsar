@@ -18,6 +18,7 @@ import java.net.Socket;
 
 public class BioServer {
     private final static int PORT = 8080;
+    private final int BUFFER_SIZE = 1024;
 
     public void serve() {
         try {
@@ -85,11 +86,37 @@ public class BioServer {
                 }
             } else {
                 StaticResourceReader reader = new StaticResourceReader();
-                reader.read(routeInfo.getJarPath(),((StaticRouteInfo) routeInfo).getFilePath(),outputStream);
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                InputStream is = reader.read(routeInfo.getJarPath(),((StaticRouteInfo) routeInfo).getFilePath());
+                if(is != null) {
+                    byte[] readBytes = new byte[BUFFER_SIZE];
+                    try {
+                        int byteNum = is.read(readBytes, 0, BUFFER_SIZE);
+                        while (byteNum != -1) {
+                            outputStream.write(readBytes, 0, byteNum);
+                            byteNum = is.read(readBytes, 0, BUFFER_SIZE);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (is != null) {
+                            try {
+                                is.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        try {
+                            outputStream.flush();
+                            outputStream.close();
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }else{
+                    //Request a non exist file
+                    //TODO: handle exception
+                    System.out.println("Missing file: " + ((StaticRouteInfo) routeInfo).getFilePath());
                 }
             }
 
