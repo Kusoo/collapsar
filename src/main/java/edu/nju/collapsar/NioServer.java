@@ -1,19 +1,26 @@
 package edu.nju.collapsar;
 
+import edu.nju.collapsar.invoker.Invoker;
+import edu.nju.collapsar.invoker.StaticResourceReader;
+import edu.nju.collapsar.routeInfo.DynamicRouteInfo;
+import edu.nju.collapsar.routeInfo.RouteInfo;
+import edu.nju.collapsar.routeInfo.StaticRouteInfo;
+import edu.nju.collapsar.util.ResponseHelper;
+import edu.nju.collapsar.util.RouteManager;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class NioServer {
     private final static int PORT = 8080;
+    private final int BUFFER_SIZE = 1024;
 
     private ServerSocketChannel serverChannel;
     private Selector selector;
@@ -56,8 +63,9 @@ public class NioServer {
         }
     }
 
-    private class Worker implements Runnable{
-        private final ByteBuffer buffer = ByteBuffer.allocate(2048);
+    private class Worker implements Runnable {
+        private ByteBuffer reqBuffer = ByteBuffer.allocate(2048);
+        private ByteBuffer resBuffer = ByteBuffer.allocate(BUFFER_SIZE);
         private SocketChannel socketChannel;
 
         public Worker(SocketChannel socketChannel) {
@@ -65,21 +73,57 @@ public class NioServer {
         }
 
         public void run() {
-            buffer.clear();
             try {
-                socketChannel.read(buffer);
-                String requestStr = new String(buffer.array());
-                //parse the request string
-                Request request = null;
+                int size = socketChannel.read(reqBuffer);
+                byte[] requestBuffer = new byte[size];
+                reqBuffer.get(requestBuffer);
+                StringBuilder requestBuilder = new StringBuilder();
+                for (int i = 0; i < size; i++) {
+                    requestBuilder.append((char) requestBuffer[i]);
+                }
+                String requestStr = requestBuilder.toString();
 
-                //response to not file-request
-                Response response = null;
+                Request request = RequestParser.parse(requestStr);
+                Response response = new ResponseImpl();
+
+                handle(request, response);
                 socketChannel.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         }
-    }
 
+        private void handle(Request request, Response response) {
+            RouteInfo routeInfo = RouteManager.getRouteManager().getRouting(request.getUrl());
+            if (routeInfo instanceof DynamicRouteInfo) {
+                Invoker invoker = new Invoker();
+                invoker.invoke(routeInfo.getJarPath(), ((DynamicRouteInfo) routeInfo).getClassName(), request, response);
+                try {
+                    ResponseHelper.quickSet(response);
+                    socketChannel.write(ByteBuffer.wrap(response.generateResponseMessage().getBytes()));
+                    socketChannel.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                StaticResourceReader reader = new StaticResourceReader();
+                InputStream is = reader.read(routeInfo.getJarPath(), ((StaticRouteInfo) routeInfo).getFilePath());
+                ReadableByteChannel fileChannel = Channels.newChannel(is);
+                try{
+                    while (true) {
+                        resBuffer.clear();
+                        int r = fileChannel.read( resBuffer );
+                        if (r == -1) {
+                            break;
+                        }
+                        resBuffer.flip();
+                        socketChannel.write( resBuffer );
+                    }
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
