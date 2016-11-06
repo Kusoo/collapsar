@@ -1,6 +1,7 @@
 package edu.nju.collapsar.util;
 
 import edu.nju.collapsar.routeInfo.*;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 /**
@@ -10,9 +11,6 @@ public class ConfigManager {
     private static int port = 0;
     private static String ipAddress = null;
     private static String serverPath = null;
-    private static String serviceName = null;
-    private static String documentRoot = null;
-    private static String routeConfigPath = null;
     private final static String CONFIGPATH = System.getProperty("user.dir") + "/src/main/resources/conf/conf.json";
     private static ConfigManager managerInstance = null;
     private ConfigManager() {
@@ -22,18 +20,16 @@ public class ConfigManager {
         JSONObject server = root.getJSONObject("server");
         port = server.getInt("port");
         ipAddress = server.getString("ipAddress");
-        serverPath = server.getString("serverPath");
-        JSONObject service = server.getJSONObject("service");
-        serviceName = service.getString("serviceName");
-        try {
-            documentRoot = service.getString("documentRoot");
-        } catch (Exception e) {
-            e.printStackTrace();
+        JSONArray services = server.getJSONArray("service");
+        String[] jarNames = new String[services.size()];
+        String[] documentRoots = new String[services.size()];
+        for (int i = 0; i < services.size(); i++) {
+            JSONObject temp = services.getJSONObject(i);
+            jarNames[i] = temp.getString("jarName");
+            documentRoots[i] = temp.getString("documentRoot");
         }
-        routeConfigPath = service.getString("routeConfigPath");
-
         //初始化路由文件与routeManager
-        RouteManager.init(documentRoot, routeConfigPath);
+        RouteManager.init(services.size(), jarNames, documentRoots);
     }
 
     public static ConfigManager getConfigManager() {

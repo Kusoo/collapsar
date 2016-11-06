@@ -1,31 +1,22 @@
 {
   "rules":{
-    "baseRoute":"/webapp",//表示该路由的基本前缀，下面的路由可用./来表示
-    "jarpath":"./jar/File.jar",//表示使用的服务器文件所形成的jar文件的位置,默认为./jar/File.jar,./表示在DocumentRoot目录下，也可用全路径表示
+    "baseRoute":"/collapsar",//表示该路由的基本前缀，下面的路由可用./来表示
     "ruleState":"on"//表示是否要使用下述路由规则，on表示使用，off表示不使用，使用默认路径进行寻找
   },
   "staticRouteRules": [
     {
       "staticRoutes":[
-        "/webapp/index.html"
+        "./index.html"
       ],
-      "filepath":"index.html"//静态文件位置在jar包内的位置
+      "filepath":"index.html"//静态文件位置在jar包内的Resources/位置内,文件自动加上了Resources/前缀
     }
   ],
   "dynamicActions":[
     {
       "dynamicRoutes":[
-        "/webapp/collapsarUser"
+        "./collapsarUser"
       ],
       "className":"nju.edu.collapsarUser.CollapsarUser"
-      //"jarpath":"./jar/action1.jar"//jar包位置，目前默认为上述的jarPath
-    },
-    {
-      "dynamicRoutes":[
-        "./action2"
-      ],
-      "className":"Action2"
-      //"jarpath":"./jar/action2.jar"
     }
   ]
 }
