@@ -7,7 +7,6 @@ import edu.nju.collapsar.routeInfo.RouteInfo;
 import edu.nju.collapsar.routeInfo.StaticRouteInfo;
 import edu.nju.collapsar.util.ResponseHelper;
 import edu.nju.collapsar.util.RouteManager;
-import org.omg.CORBA.portable.ResponseHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +17,7 @@ import java.net.Socket;
 
 public class BioServer {
     private final static int PORT = 8080;
+    private final int BUFFER_SIZE = 1024;
 
     public void serve() {
         try {
@@ -73,21 +73,53 @@ public class BioServer {
             RouteInfo routeInfo = RouteManager.getRouteManager().getRouting(request.getUrl());
             if(routeInfo instanceof DynamicRouteInfo){
                 Invoker invoker = new Invoker();
-                invoker.invoke(((DynamicRouteInfo) routeInfo).getClassName(),request,response);
+                invoker.invoke(routeInfo.getJarPath(),((DynamicRouteInfo) routeInfo).getClassName(),request,response);
+                try {
+                    ResponseHelper.quickSet(response);
+                    outputStream.write(response.generateResponseMessage().getBytes());
+                    outputStream.flush();
+                    outputStream.close();
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else {
                 StaticResourceReader reader = new StaticResourceReader();
-                response.write(new String(reader.read(((StaticRouteInfo) routeInfo).getFilePath())));
+                InputStream is = reader.read(routeInfo.getJarPath(),((StaticRouteInfo) routeInfo).getFilePath());
+                if(is != null) {
+                    byte[] readBytes = new byte[BUFFER_SIZE];
+                    try {
+                        int byteNum = is.read(readBytes, 0, BUFFER_SIZE);
+                        while (byteNum != -1) {
+                            outputStream.write(readBytes, 0, byteNum);
+                            byteNum = is.read(readBytes, 0, BUFFER_SIZE);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (is != null) {
+                            try {
+                                is.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        try {
+                            outputStream.flush();
+                            outputStream.close();
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }else{
+                    //Request a non exist file
+                    //TODO: handle exception
+                    System.out.println("Missing file: " + ((StaticRouteInfo) routeInfo).getFilePath());
+                }
             }
 
-            try {
-                ResponseHelper.quickSet(response);
-                outputStream.write(response.generateResponseMessage().getBytes());
-                outputStream.flush();
-                outputStream.close();
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
         }
     }
 }
