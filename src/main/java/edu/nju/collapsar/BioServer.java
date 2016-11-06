@@ -70,7 +70,7 @@ public class BioServer {
         }
 
         private void handle(Request request,Response response){
-            RouteInfo routeInfo = RouteManager.getRouteManager().getRouting(request.getUrl());
+            RouteInfo routeInfo = RouteManager.getRouting(request.getUrl());
             if(routeInfo instanceof DynamicRouteInfo){
                 Invoker invoker = new Invoker();
                 invoker.invoke(routeInfo.getJarPath(),((DynamicRouteInfo) routeInfo).getClassName(),request,response);

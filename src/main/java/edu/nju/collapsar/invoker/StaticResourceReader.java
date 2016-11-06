@@ -15,7 +15,7 @@ public class StaticResourceReader {
         InputStream is = null;
         try {
             URLClassLoader classLoader = new URLClassLoader(new URL[]{new URL("file:" + jarPath)});
-            is =  classLoader.getResourceAsStream("resources/" + path);
+            is =  classLoader.getResourceAsStream(path);
         }catch (MalformedURLException e) {
             e.printStackTrace();
         }

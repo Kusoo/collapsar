@@ -55,6 +55,7 @@ public class NioServer {
                     socketChannel.configureBlocking(false);
                     socketChannel.register(selector, SelectionKey.OP_READ);
                 } else if (key.isReadable()) {
+                    key.cancel();
                     SocketChannel socketChannel = (SocketChannel) key.channel();
                     Worker worker = new Worker(socketChannel);
                     executor.execute(worker);
@@ -75,13 +76,10 @@ public class NioServer {
         public void run() {
             try {
                 int size = socketChannel.read(reqBuffer);
+                reqBuffer.flip();
                 byte[] requestBuffer = new byte[size];
                 reqBuffer.get(requestBuffer);
-                StringBuilder requestBuilder = new StringBuilder();
-                for (int i = 0; i < size; i++) {
-                    requestBuilder.append((char) requestBuffer[i]);
-                }
-                String requestStr = requestBuilder.toString();
+                String requestStr = new String(requestBuffer);
 
                 Request request = RequestParser.parse(requestStr);
                 Response response = new ResponseImpl();
@@ -95,33 +93,38 @@ public class NioServer {
         }
 
         private void handle(Request request, Response response) {
-            RouteInfo routeInfo = RouteManager.getRouteManager().getRouting(request.getUrl());
+            RouteInfo routeInfo = RouteManager.getRouting(request.getUrl());
             if (routeInfo instanceof DynamicRouteInfo) {
                 Invoker invoker = new Invoker();
                 invoker.invoke(routeInfo.getJarPath(), ((DynamicRouteInfo) routeInfo).getClassName(), request, response);
                 try {
                     ResponseHelper.quickSet(response);
                     socketChannel.write(ByteBuffer.wrap(response.generateResponseMessage().getBytes()));
-                    socketChannel.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
                 StaticResourceReader reader = new StaticResourceReader();
                 InputStream is = reader.read(routeInfo.getJarPath(), ((StaticRouteInfo) routeInfo).getFilePath());
-                ReadableByteChannel fileChannel = Channels.newChannel(is);
-                try{
-                    while (true) {
-                        resBuffer.clear();
-                        int r = fileChannel.read( resBuffer );
-                        if (r == -1) {
-                            break;
+                if(is != null){
+                    ReadableByteChannel fileChannel = Channels.newChannel(is);
+                    try {
+                        while (true) {
+                            resBuffer.clear();
+                            int r = fileChannel.read(resBuffer);
+                            if (r == -1) {
+                                break;
+                            }
+                            resBuffer.flip();
+                            socketChannel.write(resBuffer);
                         }
-                        resBuffer.flip();
-                        socketChannel.write( resBuffer );
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                }catch (IOException e){
-                    e.printStackTrace();
+                }else{
+                    //Request a non exist file
+                    //TODO: handle exception
+                    System.out.println("Missing file: " + ((StaticRouteInfo) routeInfo).getFilePath());
                 }
             }
         }

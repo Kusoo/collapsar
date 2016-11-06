@@ -40,15 +40,12 @@ public class AioServer {
                             attachment.flip();
                             byte[] buffer = new byte[attachment.limit()];
                             attachment.get(buffer);
-                            StringBuilder requestBuilder = new StringBuilder();
-                            for (int i = 0; i < buffer.length; i++) {
-                                requestBuilder.append((char) buffer[i]);
-                            }
-                            String requestStr = requestBuilder.toString();
+
+                            String requestStr = new String(buffer);
                             Request request = RequestParser.parse(requestStr);
                             Response response = new ResponseImpl();
 
-                            Worker worker = new Worker(client,request,response);
+                            Worker worker = new Worker(client, request, response);
                             worker.work();
 
                         }
@@ -62,6 +59,8 @@ public class AioServer {
                             }
                         }
                     });
+
+                    server.accept(null, this);
                 }
 
                 @Override
@@ -70,6 +69,11 @@ public class AioServer {
                 }
             });
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            Thread.sleep(100000);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -86,7 +90,7 @@ public class AioServer {
             this.response = response;
         }
         public void work(){
-            RouteInfo routeInfo = RouteManager.getRouteManager().getRouting(request.getUrl());
+            RouteInfo routeInfo = RouteManager.getRouting(request.getUrl());
             if (routeInfo instanceof DynamicRouteInfo) {
                 Invoker invoker = new Invoker();
                 invoker.invoke(routeInfo.getJarPath(), ((DynamicRouteInfo) routeInfo).getClassName(), request, response);
@@ -114,21 +118,21 @@ public class AioServer {
             } else {
                 StaticResourceReader reader = new StaticResourceReader();
                 InputStream is = reader.read(routeInfo.getJarPath(), ((StaticRouteInfo) routeInfo).getFilePath());
-                fileChannel = Channels.newChannel(is);
-                writeStaticFile();
+                if(is != null){
+                    fileChannel = Channels.newChannel(is);
+                    writeStaticFile();
+                }else {
+                    //Request a non exist file
+                    //TODO: handle exception
+                    System.out.println("Missing file: " + ((StaticRouteInfo) routeInfo).getFilePath());
+                }
             }
         }
 
         private void writeStaticFile(){
             //process the write event
-            buffer.clear();
-            int readNum = 0;
             try {
-                readNum = fileChannel.read( buffer );
-                if(readNum == -1) {
-                    client.close();
-                    return;
-                }
+                fileChannel.read( buffer );
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -137,7 +141,19 @@ public class AioServer {
             client.write(buffer, buffer, new CompletionHandler<Integer, ByteBuffer>() {
                 @Override
                 public void completed(Integer result, ByteBuffer attachment) {
-                    writeStaticFile();
+                    try {
+                        attachment.clear();
+                        int size = fileChannel.read(attachment);
+                        if(size == -1) {
+                            client.close();
+                        }
+                        else{
+                            attachment.flip();
+                            client.write(attachment,attachment,this);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
