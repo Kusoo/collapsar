@@ -11,6 +11,7 @@ public class ConfigManager {
     private static int port = 0;
     private static String ipAddress = null;
     private static String serverPath = null;
+    //TODO 真实发布时该CONFIGPATH应当进行修改
     private final static String CONFIGPATH = System.getProperty("user.dir") + "/src/main/resources/conf/conf.json";
     private static ConfigManager managerInstance = null;
     private ConfigManager() {
@@ -27,10 +28,14 @@ public class ConfigManager {
             JSONObject temp = services.getJSONObject(i);
             jarNames[i] = temp.getString("jarName");
             documentRoots[i] = temp.getString("documentRoot");
+            if (documentRoots[i].startsWith("./")) {
+                documentRoots[i] = documentRoots[i].replaceFirst("./", System.getProperty("user.dir") + "/");
+            }
         }
         //初始化路由文件与routeManager
         RouteManager.init(services.size(), jarNames, documentRoots);
     }
+
 
     public static ConfigManager getConfigManager() {
         if (null == managerInstance) {
