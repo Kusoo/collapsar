@@ -14,6 +14,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BioServer {
     private final static int PORT = 8080;
@@ -21,12 +23,14 @@ public class BioServer {
 
     public void serve() {
         try {
+            int cpuNum = Runtime.getRuntime().availableProcessors();
+            ExecutorService executor = Executors.newFixedThreadPool(cpuNum*4);
             ServerSocket server = new ServerSocket();
             InetSocketAddress address = new InetSocketAddress(PORT);
             server.bind(address);
             while (true) {
                 Socket client = server.accept();
-                new Thread(new Worker(client)).start();
+                executor.execute(new Worker(client));
             }
         } catch (IOException e) {
             e.printStackTrace();
