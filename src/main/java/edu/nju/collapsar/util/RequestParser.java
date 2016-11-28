@@ -1,4 +1,6 @@
-package edu.nju.collapsar;
+package edu.nju.collapsar.util;
+
+import edu.nju.collapsar.RequestImpl;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

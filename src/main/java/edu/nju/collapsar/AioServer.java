@@ -5,6 +5,7 @@ import edu.nju.collapsar.invoker.StaticResourceReader;
 import edu.nju.collapsar.routeInfo.DynamicRouteInfo;
 import edu.nju.collapsar.routeInfo.RouteInfo;
 import edu.nju.collapsar.routeInfo.StaticRouteInfo;
+import edu.nju.collapsar.util.RequestParser;
 import edu.nju.collapsar.util.ResponseHelper;
 import edu.nju.collapsar.util.RouteManager;
 
