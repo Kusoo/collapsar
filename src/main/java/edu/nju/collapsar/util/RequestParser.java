@@ -1,6 +1,7 @@
 package edu.nju.collapsar.util;
 
 import edu.nju.collapsar.RequestImpl;
+import edu.nju.collapsar.exeception.BadRequestException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -16,16 +17,17 @@ public class RequestParser {
 
     }
 
-    public static RequestImpl parse(String netInput){
+    public static RequestImpl parse(String netInput) throws BadRequestException {
         RequestImpl request = new RequestImpl();
 
         if(netInput==null||netInput.equals("")) return request;
 
         String[] lines = netInput.split("\r");
         String[] pieces = lines[0].split(" ");
-        request.setType(pieces[0]);
-        request.setUrl(pieces[1]);
-        request.setHttpVersion(pieces[2]);
+        if (pieces.length != 3) throw new BadRequestException("Bad Request");
+        request.setType(pieces[0].toUpperCase());
+        request.setUrl(pieces[1].toUpperCase());
+        request.setHttpVersion(pieces[2].toUpperCase());
 
         if(request.getType().equalsIgnoreCase("GET")){
             extractHeaders(request,lines);
