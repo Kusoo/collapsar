@@ -5,6 +5,7 @@ import edu.nju.collapsar.invoker.StaticResourceReader;
 import edu.nju.collapsar.routeInfo.DynamicRouteInfo;
 import edu.nju.collapsar.routeInfo.RouteInfo;
 import edu.nju.collapsar.routeInfo.StaticRouteInfo;
+import edu.nju.collapsar.util.ConfigManager;
 import edu.nju.collapsar.util.RequestParser;
 import edu.nju.collapsar.util.ResponseHelper;
 import edu.nju.collapsar.util.RouteManager;
@@ -19,8 +20,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class BioServer {
-    private final static int PORT = 8080;
+    private int PORT = 8080;
     private final int BUFFER_SIZE = 1024;
+
+    public BioServer(){
+        PORT = ConfigManager.getPort();
+    }
 
     public void serve() {
         try {
@@ -57,7 +62,7 @@ public class BioServer {
         public void run() {
             byte[] buffer = new byte[2048];
             StringBuilder requestBuilder = new StringBuilder();
-            int size = 0;
+            int size;
             try {
                 size = inputStream.read(buffer);
             } catch (IOException e) {

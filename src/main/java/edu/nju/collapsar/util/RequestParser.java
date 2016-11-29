@@ -39,7 +39,7 @@ public class RequestParser {
                 int blankIndex = getBlankIndex(lines);
                 String paramStr = lines[blankIndex+1];
                 String[] params = paramStr.split("&");
-                fillParametersWithUrlPair(request,params);
+                fillParametersWithUrlPiece(request,params);
             } else if(contentType.contains("multipart/form-data")){
                 String boundary = "--"+contentType.split("boundary=")[1];
                 String[] blocks = netInput.split(boundary);
@@ -94,8 +94,7 @@ public class RequestParser {
 
     private static void extractHeaders(RequestImpl request,String[] lines){
         Map<String,String> headers = new HashMap<String, String>();
-        for(int i = 1,n = lines.length;i < n;i++){
-            if(lines[i].equals("\n")) break;
+        for(int i = 1,n = lines.length;i < n||lines[i].equals("\n");i++){
             String[] head = lines[i].split(":",2);
             headers.put(head[0].trim(),head[1].trim());
         }
@@ -108,10 +107,10 @@ public class RequestParser {
         String paramStr = url.split("\\u003F")[1];                              //split with '?'
         if(paramStr == null || paramStr.equals("")) return;
         String[] params = paramStr.split("&");
-        fillParametersWithUrlPair(request,params);
+        fillParametersWithUrlPiece(request,params);
     }
 
-    private static void fillParametersWithUrlPair(RequestImpl request,String[] pairs){
+    private static void fillParametersWithUrlPiece(RequestImpl request,String[] pairs){
         Map<String,String> urlParams = new HashMap<String, String>();
         for(String param:pairs){
             if(param != null && !param.equals("") && param.contains("=")){

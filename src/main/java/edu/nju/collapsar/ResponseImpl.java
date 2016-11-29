@@ -82,6 +82,7 @@ public class ResponseImpl implements Response{
     }
 
     public void setStatusCode(String statusCode){
+        // make sure that status code is right
         Pattern pattern = Pattern.compile("[1-5]{1}[0-9]{2}");
         if(pattern.matcher(statusCode).matches()){
             this.statusCode = statusCode;

@@ -64,16 +64,8 @@ public class ConfigManager {
         return port;
     }
 
-    public static void setPort(int port) {
-        ConfigManager.port = port;
-    }
-
     public static String getIPAddress() {
         return ipAddress;
-    }
-
-    public static void setIPAddress(String ipAddress) {
-        ConfigManager.ipAddress = ipAddress;
     }
 
     public static ServerType getServerType() {
