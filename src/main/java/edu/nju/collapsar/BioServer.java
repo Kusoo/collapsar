@@ -60,17 +60,21 @@ public class BioServer {
 
         @Override
         public void run() {
-            byte[] buffer = new byte[2048];
+            byte[] buffer = new byte[BUFFER_SIZE];
             StringBuilder requestBuilder = new StringBuilder();
             int size;
             try {
-                size = inputStream.read(buffer);
+                do{
+                    size = inputStream.read(buffer);
+                    for (int i = 0; i < size; i++) {
+                        requestBuilder.append((char) buffer[i]);
+                    }
+                } while (size == BUFFER_SIZE);
+
             } catch (IOException e) {
                 size = -1;
             }
-            for (int i = 0; i < size; i++) {
-                requestBuilder.append((char) buffer[i]);
-            }
+
             String requestStr = requestBuilder.toString();
 
             Request request = RequestParser.parse(requestStr);

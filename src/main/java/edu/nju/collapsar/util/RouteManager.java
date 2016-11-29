@@ -141,7 +141,7 @@ public class RouteManager {
 
     private RouteInfo routingUsingRules(String url) {
         RouteInfo routeResult = null;
-        RouteInfo temp = null;
+        RouteInfo temp;
         Iterator<RouteInfo> it = staticRouteMap.iterator();
         if (null != url) {
             while (it.hasNext()) {

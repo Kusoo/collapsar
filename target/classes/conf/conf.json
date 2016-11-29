@@ -3,7 +3,7 @@
     //只做单服务器
     "port": 8080,
     "ip_address":"192.168.1.100",
-    "server_type":"AIO",
+    "server_type":"BIO",
     "service":
       [
         {
