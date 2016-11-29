@@ -100,7 +100,7 @@ public class AioServer {
             if (routeInfo instanceof DynamicRouteInfo) {
                 Invoker invoker = new Invoker();
                 invoker.invoke(routeInfo.getJarPath(), ((DynamicRouteInfo) routeInfo).getClassName(), request, response);
-                ResponseHelper.quickSet(response);
+                ResponseHelper.quickSet200(response);
                 ByteBuffer resBuffer = ByteBuffer.wrap(response.generateResponseMessage().getBytes());
                 client.write(resBuffer, resBuffer, new CompletionHandler<Integer, ByteBuffer>() {
                     @Override
