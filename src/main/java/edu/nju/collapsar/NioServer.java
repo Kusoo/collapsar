@@ -5,6 +5,7 @@ import edu.nju.collapsar.invoker.StaticResourceReader;
 import edu.nju.collapsar.routeInfo.DynamicRouteInfo;
 import edu.nju.collapsar.routeInfo.RouteInfo;
 import edu.nju.collapsar.routeInfo.StaticRouteInfo;
+import edu.nju.collapsar.util.ConfigManager;
 import edu.nju.collapsar.util.RequestParser;
 import edu.nju.collapsar.util.ResponseHelper;
 import edu.nju.collapsar.util.RouteManager;
@@ -20,13 +21,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class NioServer {
-    private final static int PORT = 8080;
+    private int PORT;
     private final int BUFFER_SIZE = 1024;
 
     private ServerSocketChannel serverChannel;
     private Selector selector;
 
     private ExecutorService executor;
+
+    public NioServer(){
+        PORT = ConfigManager.getPort();
+    }
 
     public void serve(){
         int cpuNum = Runtime.getRuntime().availableProcessors();

@@ -94,7 +94,7 @@ public class RequestParser {
 
     private static void extractHeaders(RequestImpl request,String[] lines){
         Map<String,String> headers = new HashMap<String, String>();
-        for(int i = 1,n = lines.length;i < n||lines[i].equals("\n");i++){
+        for(int i = 1,n = lines.length;i < n&&!lines[i].equals("\n");i++){
             String[] head = lines[i].split(":",2);
             headers.put(head[0].trim(),head[1].trim());
         }
