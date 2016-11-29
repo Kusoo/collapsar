@@ -17,16 +17,15 @@ public class RequestParser {
 
     }
 
-    public static RequestImpl parse(String netInput) throws BadRequestException {
+    public static RequestImpl parse(String netInput){
         RequestImpl request = new RequestImpl();
 
         if(netInput==null||netInput.equals("")) return request;
 
         String[] lines = netInput.split("\r");
         String[] pieces = lines[0].split(" ");
-        if (pieces.length != 3) throw new BadRequestException("Bad Request");
         request.setType(pieces[0].toUpperCase());
-        request.setUrl(pieces[1].toUpperCase());
+        request.setUrl(pieces[1]);
         request.setHttpVersion(pieces[2].toUpperCase());
 
         if(request.getType().equalsIgnoreCase("GET")){

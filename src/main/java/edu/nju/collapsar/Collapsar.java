@@ -8,7 +8,26 @@ import edu.nju.collapsar.util.ConfigManager;
 public class Collapsar {
     public static void main(String[] args){
         ConfigManager.init();
-        BioServer bio = new BioServer();
-        bio.serve();
+        switch (ConfigManager.getServerType()){
+            case BIO:
+                BioServer bio = new BioServer();
+                bio.serve();
+                break;
+            case NIO:
+                NioServer nio = new NioServer();
+                nio.serve();
+                break;
+            case AIO:
+                AioServer aio = new AioServer();
+                aio.serve();
+                break;
+            default:
+                BioServer defaultServer = new BioServer();
+                defaultServer.serve();
+                break;
+
+        }
+
+
     }
 }

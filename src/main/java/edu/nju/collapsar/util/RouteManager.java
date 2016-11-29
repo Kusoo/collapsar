@@ -4,7 +4,6 @@ package edu.nju.collapsar.util; /**
 import edu.nju.collapsar.routeInfo.DynamicRouteInfo;
 import edu.nju.collapsar.routeInfo.RouteInfo;
 import edu.nju.collapsar.routeInfo.StaticRouteInfo;
-import jdk.nashorn.internal.runtime.regexp.joni.Config;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
