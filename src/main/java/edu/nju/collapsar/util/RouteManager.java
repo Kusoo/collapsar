@@ -208,11 +208,9 @@ public class RouteManager {
             }
         }
 
-        if ((null == resultRouteInfo) && (specialNum >= 0)) {
+        //这里针对静态文件进行默认寻址，用是否含有“.”来确定是否为静态文件
+        if ((null == resultRouteInfo) && (specialNum >= 0) && (url.contains("."))) {
             resultRouteInfo = managerInstances.get(specialNum).defaultRouting(url);
-        }
-        if(null == resultRouteInfo) {//如果还是空，则只能随便给个
-            resultRouteInfo = managerInstances.get(0).defaultRouting(url);
         }
 
         return resultRouteInfo;
