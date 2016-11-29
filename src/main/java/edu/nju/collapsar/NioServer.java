@@ -108,7 +108,7 @@ public class NioServer {
                 Invoker invoker = new Invoker();
                 invoker.invoke(routeInfo.getJarPath(), ((DynamicRouteInfo) routeInfo).getClassName(), request, response);
                 try {
-                    ResponseHelper.quickSet(response);
+                    ResponseHelper.quickSet200(response);
                     socketChannel.write(ByteBuffer.wrap(response.generateResponseMessage().getBytes()));
                 } catch (IOException e) {
                     e.printStackTrace();

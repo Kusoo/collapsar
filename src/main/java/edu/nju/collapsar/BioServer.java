@@ -85,11 +85,22 @@ public class BioServer {
 
         private void handle(Request request,Response response){
             RouteInfo routeInfo = RouteManager.getRouting(request.getUrl());
+            if (null == routeInfo){
+                try {
+                    ResponseHelper.quickSet404(response);
+                    outputStream.write(response.generateResponseMessage().getBytes());
+                    outputStream.flush();
+                    outputStream.close();
+                    socket.close();
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
             if(routeInfo instanceof DynamicRouteInfo){
                 Invoker invoker = new Invoker();
                 invoker.invoke(routeInfo.getJarPath(),((DynamicRouteInfo) routeInfo).getClassName(),request,response);
                 try {
-                    ResponseHelper.quickSet(response);
+                    ResponseHelper.quickSet200(response);
                     outputStream.write(response.generateResponseMessage().getBytes());
                     outputStream.flush();
                     outputStream.close();
@@ -132,8 +143,6 @@ public class BioServer {
                     System.out.println("Missing file: " + ((StaticRouteInfo) routeInfo).getFilePath());
                 }
             }
-
-
         }
     }
 }
