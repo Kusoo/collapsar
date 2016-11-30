@@ -16,6 +16,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -48,8 +50,15 @@ public class BioServer {
         private InputStream inputStream;
         private OutputStream outputStream;
 
+        private long startTime;
+        private int surviveTime = 5;
+        private int maxServingNum = 10;
+        private int servingNum = 0;
+        private boolean isFirstRequest = true;
+
         public Worker(Socket socket) {
             this.socket = socket;
+            startTime = System.currentTimeMillis();
             try {
                 inputStream = socket.getInputStream();
                 outputStream = socket.getOutputStream();
@@ -58,29 +67,74 @@ public class BioServer {
             }
         }
 
+        private Map<String,String> parseKeepAlive(String keepAliveStr){
+            Map<String,String> map = new HashMap<>();
+            if(keepAliveStr.contains(",")){
+                for(String piece:keepAliveStr.split(",")){
+                    fillMap(map,piece);
+                }
+            } else {
+                fillMap(map,keepAliveStr);
+            }
+            return map;
+        }
+
+        private void fillMap(Map<String,String> map,String keepAliveStr){
+            String[] blocks = keepAliveStr.split("=");
+            if(blocks.length>=2){
+                map.put(blocks[0].trim().toUpperCase(),blocks[1].trim());
+            }
+        }
+
         @Override
         public void run() {
-            byte[] buffer = new byte[BUFFER_SIZE];
-            StringBuilder requestBuilder = new StringBuilder();
-            int size;
-            try {
-                do{
-                    size = inputStream.read(buffer);
-                    for (int i = 0; i < size; i++) {
-                        requestBuilder.append((char) buffer[i]);
-                    }
-                } while (size == BUFFER_SIZE);
+            while((System.currentTimeMillis() - startTime)/1000<surviveTime&&servingNum<maxServingNum){
+                byte[] buffer = new byte[BUFFER_SIZE];
+                StringBuilder requestBuilder = new StringBuilder();
+                int size;
+                try {
+                    if(inputStream.available()>0){
+                        do{
+                            size = inputStream.read(buffer);
+                            for (int i = 0; i < size; i++) {
+                                requestBuilder.append((char) buffer[i]);
+                            }
+                        } while (size == BUFFER_SIZE);
+                        String requestStr = requestBuilder.toString();
 
-            } catch (IOException e) {
-                size = -1;
+                        Request request = RequestParser.parse(requestStr);
+                        Response response = new ResponseImpl();
+
+                        //如果是初次请求设置最大请求时间和最大服务次数
+                        if(isFirstRequest){
+                            int clientSurviveTime = 5;
+                            int clientMaxservingNum = 10;
+                            String keepAlivestr = request.getHeader("Keep-Alive");
+                            if( null != keepAlivestr){
+                                Map<String,String> map = parseKeepAlive(keepAlivestr);
+                                clientSurviveTime = map.get("TIMEOUT")!=null?Integer.parseInt(map.get("TIMEOUT")):60;
+                                clientMaxservingNum = map.get("MAX")!=null?Integer.parseInt(map.get("MAX")):10;
+                            }
+                            surviveTime = clientSurviveTime;
+                            maxServingNum = clientMaxservingNum;
+                            isFirstRequest = false;
+                        }
+                        servingNum++;
+                        System.out.println(servingNum);
+                        handle(request,response);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
-            String requestStr = requestBuilder.toString();
-
-            Request request = RequestParser.parse(requestStr);
-            Response response = new ResponseImpl();
-
-            handle(request,response);
+            //直到最大存活时间和最大服务次数任意一个达到时，关闭TCP连接
+            try {
+                outputStream.close();
+                socket.close();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
         }
 
         private void handle(Request request,Response response){
@@ -90,8 +144,6 @@ public class BioServer {
                     ResponseHelper.quickSet404(response);
                     outputStream.write(response.generateResponseMessage().getBytes());
                     outputStream.flush();
-                    outputStream.close();
-                    socket.close();
                 } catch (IOException e){
                     e.printStackTrace();
                 }
@@ -103,8 +155,6 @@ public class BioServer {
                     ResponseHelper.quickSet200(response);
                     outputStream.write(response.generateResponseMessage().getBytes());
                     outputStream.flush();
-                    outputStream.close();
-                    socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -131,8 +181,6 @@ public class BioServer {
                         }
                         try {
                             outputStream.flush();
-                            outputStream.close();
-                            socket.close();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
