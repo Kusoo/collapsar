@@ -187,8 +187,13 @@ public class BioServer {
                     }
                 }else{
                     //Request a non exist file
-                    //TODO: handle exception
-                    System.out.println("Missing file: " + ((StaticRouteInfo) routeInfo).getFilePath());
+                    ResponseHelper.quickSet404(response);
+                    try {
+                        outputStream.write(response.generateResponseMessage().getBytes());
+                        outputStream.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

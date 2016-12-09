@@ -37,5 +37,6 @@ public class ResponseHelper {
         setHttpVersion(response);
         setStatus404(response);
         setDefaultHeader(response);
+        response.write("Not Found!");
     }
 }

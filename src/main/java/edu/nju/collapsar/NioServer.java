@@ -134,7 +134,12 @@ public class NioServer {
                 }else{
                     //Request a non exist file
                     //TODO: handle exception
-                    System.out.println("Missing file: " + ((StaticRouteInfo) routeInfo).getFilePath());
+                    ResponseHelper.quickSet404(response);
+                    try {
+                        socketChannel.write(ByteBuffer.wrap(response.generateResponseMessage().getBytes()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

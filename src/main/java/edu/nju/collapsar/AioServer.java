@@ -129,8 +129,27 @@ public class AioServer {
                     writeStaticFile();
                 }else {
                     //Request a non exist file
-                    //TODO: handle exception
-                    System.out.println("Missing file: " + ((StaticRouteInfo) routeInfo).getFilePath());
+                    ResponseHelper.quickSet404(response);
+                    ByteBuffer resBuffer = ByteBuffer.wrap(response.generateResponseMessage().getBytes());
+                    client.write(resBuffer, resBuffer, new CompletionHandler<Integer, ByteBuffer>() {
+                        @Override
+                        public void completed(Integer result, ByteBuffer attachment) {
+                            try {
+                                client.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void failed(Throwable exc, ByteBuffer attachment) {
+                            try {
+                                client.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
                 }
             }
         }
