@@ -25,6 +25,15 @@ public class JSONReader {
         return instance;
     }
 
+    public JSONObject getJSONStrContent(String fileContext) {
+        if (null != fileContext) {
+            content = fileContext;
+            return JSONObject.fromObject(content);
+        } else {
+            return null;
+        }
+    }
+
     public JSONObject getJSONFileContent(String fileName) {
         file = new File(fileName);
         Long filelength = file.length() + DEFAULT_SPACE;

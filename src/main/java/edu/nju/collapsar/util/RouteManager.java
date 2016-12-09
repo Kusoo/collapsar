@@ -1,12 +1,17 @@
 package edu.nju.collapsar.util; /**
  * Created by yifei on 2016/11/4.
  */
+import edu.nju.collapsar.invoker.StaticResourceReader;
 import edu.nju.collapsar.routeInfo.DynamicRouteInfo;
 import edu.nju.collapsar.routeInfo.RouteInfo;
 import edu.nju.collapsar.routeInfo.StaticRouteInfo;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,8 +43,40 @@ public class RouteManager {
         }
         this.documentRoot = documentRoot;
         String routeConfigPath = documentRoot + "/route.json";
+        this.jarPath = documentRoot + "/" + jarName;
+
         JSONReader jsonReader = JSONReader.getJSONReader();
-        JSONObject root = jsonReader.getJSONFileContent(routeConfigPath);
+        JSONObject root = null;
+        File checkFile = new File(routeConfigPath);
+        //这里在找不到外部的json路由信息时，会去jar保内部找
+        if (checkFile.exists()) {
+            root = jsonReader.getJSONFileContent(routeConfigPath);
+        } else {
+            StaticResourceReader reader = new StaticResourceReader();
+            InputStream is = reader.read(this.jarPath, "route.json");
+            byte[] bcache = new byte[2048];
+            int readSize = 0;//每次读取的字节长度
+            ByteArrayOutputStream infoStream = new ByteArrayOutputStream();
+            try {
+                //一次性读取2048字节
+                while ((readSize = is.read(bcache)) > 0) {
+                    //将bcache中读取的input数据写入infoStream
+                    infoStream.write(bcache,0,readSize);
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            } finally {
+                try {
+                    //输入流关闭
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            String tempStr = infoStream.toString();
+            root = JSONReader.getJSONReader().getJSONStrContent(tempStr);
+        }
+
         JSONObject rules = root.getJSONObject("rules");
         String stateStr = rules.getString("ruleState");
         if ((null != stateStr) && ("on".equals(stateStr))) {
@@ -47,7 +84,6 @@ public class RouteManager {
         } else if ((null != stateStr) && ("off".equals(stateStr))) {
             ruleState = false;
         }
-        this.jarPath = documentRoot + "/" + jarName;
         try {
             baseRoute = rules.getString("baseRoute");
         } catch (Exception e) {
@@ -117,7 +153,7 @@ public class RouteManager {
 
             classname = temp.getString("className");
             routeInfo = new DynamicRouteInfo(routes, classname, jarPath);
-            staticRouteMap.add(routeInfo);
+            dynamicRouteMap.add(routeInfo);
         }
 
     }
