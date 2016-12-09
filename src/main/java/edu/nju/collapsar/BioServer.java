@@ -160,7 +160,7 @@ public class BioServer {
                 }
             } else {
                 StaticResourceReader reader = new StaticResourceReader();
-                InputStream is = reader.read(routeInfo.getJarPath(),((StaticRouteInfo) routeInfo).getFilePath());
+                InputStream is = routeInfo==null ? null:reader.read(routeInfo.getJarPath(),((StaticRouteInfo) routeInfo).getFilePath());
                 if(is != null) {
                     byte[] readBytes = new byte[BUFFER_SIZE];
                     try {
